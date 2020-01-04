@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using RDG;
 using System;
 
 public class Metronome : MonoBehaviour
@@ -155,8 +156,10 @@ public class Metronome : MonoBehaviour
                 accentTick.Play();
                 this.background.color = new Color(1, 0, 0, 1);
                 this.textNumber.color = new Color(0, 0, 1, 1);
-                if (vibrationsOn) { 
-                    Vibration.CreateOneShot(50, 5);
+                if (vibrationsOn) {
+                    Debug.Log("Vibrate");
+                    Vibration.Vibrate(50, 255, true);
+                    //Vibration.Vibrate(50, Vibration.PredefinedEffect.EFFECT_HEAVY_CLICK, true);
                 }
                 i = 1;
             }
@@ -179,7 +182,9 @@ public class Metronome : MonoBehaviour
                 this.textNumber.color = new Color(0, 0, 1, 1);
                 if (vibrationsOn)
                 {
-                    Vibration.CreateOneShot(50, 5);
+                    Debug.Log("Vibrate");
+                    Vibration.Vibrate(50, 255, true);
+                    //Vibration.Vibrate(50, Vibration.PredefinedEffect.EFFECT_HEAVY_CLICK, true);
                 }
                 i++;
             }
