@@ -77,9 +77,9 @@ public class Metronome : MonoBehaviour
         if (inputBarLenght.text != null && inputBarLenght.text != "") { 
             int tempBarLenght = int.Parse(inputBarLenght.text);
 
-            if (tempBarLenght > 32)
+            if (tempBarLenght > 16)
             {
-                tempBarLenght = 32;
+                tempBarLenght = 16;
             }
 
             if (tempBarLenght <= 0)
