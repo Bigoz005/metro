@@ -83,45 +83,61 @@ public class LoadAudioFiles : MonoBehaviour
         }
     }
     //musi byc ten sam sample rate i ilosc kanalow
-    public void SaveSeparatelyButton()
+    public void SaveSeparatelyButton(InputField inputfield)
     {
         // Set an AudioSource to this object
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
-
-        // Find files in directory        
-        GetFilesInDirectory();
-
-        // Play a clip found in directory
-        if (audioClips.Count > 0)
+        String fileName = inputfield.text;
+        if (fileName != null && fileName != "")
         {
-            //audioSource.clip = audioClips[0];
-            //audioSource.Play();
-            result = audioClipCombine.Combine(audioClips[0], audioClips[1]);
-            SavWav.Save("mySeperatelyfile", result);
-        //audioSource.clip = result;
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+                audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+
+            // Find files in directory        
+            GetFilesInDirectory();
+
+            // Play a clip found in directory
+            if (audioClips.Count > 0)
+            {
+                //audioSource.clip = audioClips[0];
+                //audioSource.Play();
+                result = audioClipCombine.Combine(audioClips[0], audioClips[1]);
+                SavWav.Save(fileName, result);
+                //audioSource.clip = result;
+            }
+        }
+        else
+        {
+            text.text = "Your File need to have a name";
         }
     }
     //musi byc ten sam sample rate i ilosc kanalow
-    public void SaveMixedButton()
+    public void SaveMixedButton(InputField inputfield)
     {
+        String fileName = inputfield.text;
         // Set an AudioSource to this object
-        audioSource = GetComponent<AudioSource>();
-        if (audioSource == null)
-            audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+        if (fileName != null && fileName !="")
+        { 
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+                audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
 
-        // Find files in directory        
-        GetFilesInDirectory();
+            // Find files in directory        
+            GetFilesInDirectory();
 
-        // Play a clip found in directory
-        if (audioClips.Count > 0)
+            // Play a clip found in directory
+            if (audioClips.Count > 0)
+            {
+                //audioSource.clip = audioClips[0];
+                //audioSource.Play();
+                result = audioClipCombine.MixAudioFiles(audioClips[0], audioClips[1]);
+                SavWav.Save(fileName, result);
+                //audioSource.clip = result;
+            }
+        }
+        else
         {
-            //audioSource.clip = audioClips[0];
-            //audioSource.Play();
-            result = audioClipCombine.MixAudioFiles(audioClips[0], audioClips[1]);
-            SavWav.Save("myMixedFile", result);
-            //audioSource.clip = result;
+            text.text = "Your File need to have a name";
         }
     }
 
