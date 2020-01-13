@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class AudioClipCombine : MonoBehaviour
 {
-    public AudioClip Combine(params AudioClip[] clips)
+    public AudioClip CombineMany(params AudioClip[] clips)
     {
         if (clips == null || clips.Length == 0)
             return null;
@@ -42,7 +42,39 @@ public class AudioClipCombine : MonoBehaviour
         return result;
     }
 
-    public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB)
+
+    public AudioClip Combine(AudioClip clipA, AudioClip clipB, int channels, int frequency)
+    {
+        if (clipA == null || clipB == null)
+            return null;
+
+        int length = 0;
+        length += clipA.samples * clipA.channels;
+        length += clipB.samples * clipB.channels;
+
+        float[] data = new float[length];
+        length = 0;
+
+        float[] buffer1 = new float[clipA.samples * clipA.channels];
+        clipA.GetData(buffer1, 0);
+        buffer1.CopyTo(data, length);
+        length += buffer1.Length;
+
+        float[] buffer2 = new float[clipB.samples * clipB.channels];
+        clipB.GetData(buffer2, 0);
+        buffer2.CopyTo(data, length);
+        length += buffer2.Length;
+
+        if (length == 0)
+            return null;
+
+        AudioClip result = AudioClip.Create("Combined", length, channels, frequency, false, false);
+        result.SetData(data, 0);
+
+        return result;
+    }
+
+    public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB, int channels, int frequency)
     {
         float[] floatSamplesA = new float[clipA.samples * clipA.channels];
         clipA.GetData(floatSamplesA, 0);
@@ -54,7 +86,7 @@ public class AudioClipCombine : MonoBehaviour
 
         float[] mixedFloatArray = MixAndClampFloatBuffers(floatSamplesA, floatSamplesB);
         //float[] mixedFloatArray = byteToFloat(mixedBuffers);
-        AudioClip result = AudioClip.Create("Mixed", mixedFloatArray.Length, clipA.channels, clipA.frequency, false);
+        AudioClip result = AudioClip.Create("Mixed", mixedFloatArray.Length, channels, frequency, false);
         result.SetData(mixedFloatArray, 0);
         return result;
     }
