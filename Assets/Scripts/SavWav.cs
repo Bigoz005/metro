@@ -44,7 +44,7 @@ public static class SavWav
 //        var filepath = Path.Combine(Application.persistentDataPath, filename);
         var filepath = Path.Combine(Application.dataPath, filename);
 
-        Debug.Log(filepath);
+        Debug.Log("Saving in: " + filepath);
 
         // Make sure directory exists if user is saving to sub dir.
         Directory.CreateDirectory(Path.GetDirectoryName(filepath));
@@ -57,6 +57,7 @@ public static class SavWav
             WriteHeader(fileStream, clip);
         }
 
+        Debug.Log("File saved");
         return true; // TODO: return false if there's a failure saving the file
     }
 

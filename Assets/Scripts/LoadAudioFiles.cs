@@ -16,7 +16,7 @@ public class LoadAudioFiles : MonoBehaviour
     static AudioSource audioSource;
     static List<AudioClip> audioClips = new List<AudioClip>();
     static Text text;
-    static AudioClipCombine audioClipCombine = new AudioClipCombine();
+    AudioClipCombine audioClipCombine;
     public AudioClip result;
 
     public static string GetAndroidExternalFilesDir()
@@ -60,14 +60,14 @@ public class LoadAudioFiles : MonoBehaviour
 
     public void Start()
     {
-
+        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
         text = GetComponentInChildren<Text>();
         // If in editor the path is in Assets folder
         if (Application.isEditor) { 
             path = "/Assets";
             path = path.Substring(1);
             text.text = "";
-            text.text = path;
+            text.text = "Path: " + path;
         }
         else
         {
@@ -82,7 +82,7 @@ public class LoadAudioFiles : MonoBehaviour
             text.text = "Path: " + path;
         }
     }
-
+    //musi byc ten sam sample rate i ilosc kanalow
     public void SaveSeparatelyButton()
     {
         // Set an AudioSource to this object
@@ -99,8 +99,29 @@ public class LoadAudioFiles : MonoBehaviour
             //audioSource.clip = audioClips[0];
             //audioSource.Play();
             result = audioClipCombine.Combine(audioClips[0], audioClips[1]);
-            SavWav.Save("myfile", result);
-//            audioSource.clip = result;
+            SavWav.Save("mySeperatelyfile", result);
+        //audioSource.clip = result;
+        }
+    }
+    //musi byc ten sam sample rate i ilosc kanalow
+    public void SaveMixedButton()
+    {
+        // Set an AudioSource to this object
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+
+        // Find files in directory        
+        GetFilesInDirectory();
+
+        // Play a clip found in directory
+        if (audioClips.Count > 0)
+        {
+            //audioSource.clip = audioClips[0];
+            //audioSource.Play();
+            result = audioClipCombine.MixAudioFiles(audioClips[0], audioClips[1]);
+            SavWav.Save("myMixedFile", result);
+            //audioSource.clip = result;
         }
     }
 
