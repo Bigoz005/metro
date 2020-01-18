@@ -10,7 +10,7 @@ public class LoadAudioFiles : MonoBehaviour
 {
 
     static string path  = "./"; // Is equal to where you have your executable
-    static string[] fileTypes = { "ogg", "wav" }; // Valid file types
+    static string[] fileTypes = {"ogg", "wav" }; // Valid file types
  
     static FileInfo[] files;
     static AudioSource audioSource;
@@ -22,6 +22,8 @@ public class LoadAudioFiles : MonoBehaviour
     private Dropdown dropdown1, dropdown2;
     private int frequency = 44100;
     private int channels = 2;
+    private string firstName;
+    private string secondName;
 
     public static string GetAndroidExternalFilesDir()
     {
@@ -104,6 +106,7 @@ public class LoadAudioFiles : MonoBehaviour
         String fileName = fileNameInput.text;
         if (fileName != null && fileName != "")
         {
+            setSelectedAudioClips(dropdown1, dropdown2);
             if (selectedAudioClips.Count > 1)
             {
                 result = audioClipCombine.CombineMany(selectedAudioClips[0], selectedAudioClips[1]);
@@ -124,6 +127,7 @@ public class LoadAudioFiles : MonoBehaviour
         String fileName = fileNameInput.text;
         if (fileName != null && fileName != "")
         {
+            setSelectedAudioClips(dropdown1, dropdown2);
             if (selectedAudioClips.Count > 1)
             {
                 result = audioClipCombine.Combine(selectedAudioClips[0], selectedAudioClips[1], this.channels, this.frequency);
@@ -153,6 +157,7 @@ public class LoadAudioFiles : MonoBehaviour
             // audioSource = GetComponent<AudioSource>();
             //if (audioSource == null)
             // audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+            setSelectedAudioClips(dropdown1, dropdown2);
 
             if (selectedAudioClips.Count > 1)
             {
@@ -184,7 +189,7 @@ public class LoadAudioFiles : MonoBehaviour
         }
     }
 
-    public void setPitch(AudioClip audioClip, float pitch)
+    public void SetPitch(AudioClip audioClip, float pitch)
     {
         audioSource.clip = audioClip;
         if(pitch >= -3 && pitch <= 3) { 
@@ -192,7 +197,7 @@ public class LoadAudioFiles : MonoBehaviour
         }
     }
 
-    public void setTime(AudioClip audioClip, int time)
+    public void SetTime(AudioClip audioClip, int time)
     {
         audioSource.clip = audioClip;
         if (time >= 0 && time <= audioClip.length)
@@ -201,7 +206,7 @@ public class LoadAudioFiles : MonoBehaviour
         }
     }
 
-    public void setReverb(AudioClip audioClip, float reverb)
+    public void SetReverb(AudioClip audioClip, float reverb)
     {
         audioSource.clip = audioClip;
         if (reverb >= 0 && reverb <= 1.1)
@@ -210,7 +215,7 @@ public class LoadAudioFiles : MonoBehaviour
         }
     }
 
-    public void setPan(AudioClip audioClip, float pan)
+    public void SetPan(AudioClip audioClip, float pan)
     {
         audioSource.clip = audioClip;
         if (pan >= -1 && pan <= 1)
@@ -253,6 +258,8 @@ public class LoadAudioFiles : MonoBehaviour
     
     public void loadItemsToDropdown(String fileName)
     {
+       //dodac zeby sie odswiezalo a nie dodawalo caly czas, nie mozna tu dac czyszczenia bo bedzie czyscic co element zostawiajac jeden w dropdownie
+
         dropdown1.options.Add(new Dropdown.OptionData() { text = fileName });
         dropdown2.options.Add(new Dropdown.OptionData() { text = fileName });
 
@@ -260,15 +267,24 @@ public class LoadAudioFiles : MonoBehaviour
         dropdown2.RefreshShownValue();
     }
 
-    public void setSelectedAudioClips(Dropdown dropdown1, Dropdown dropdown2) //zmienic na pobieranie wybranego elementu z rozwijanej listy na scenie
+    public void setSelectedAudioClips(Dropdown dropdown1, Dropdown dropdown2)
     {
+
+        firstName = dropdown1.options[dropdown1.value].text;
+        secondName = dropdown2.options[dropdown2.value].text;
+
+        Debug.Log(firstName);
+        Debug.Log(secondName);
+
         int i = 0;
         foreach(AudioClip audioClip in audioClips) {
-            if(audioClip.name == dropdown1.name)
+            Debug.Log(audioClip.name);
+            if (audioClip.name == firstName)
             {
                 if (i==0)
                 {
                     selectedAudioClips.Add(audioClip);
+                    Debug.Log("added to selected: " + selectedAudioClips[0]);
                     i++;
                 }
             }
@@ -276,18 +292,18 @@ public class LoadAudioFiles : MonoBehaviour
         i = 0;
         foreach (AudioClip audioClip in audioClips)
         {
-            if (audioClip.name == dropdown2.name)
-            {
-                if (i == 0)
+            if (selectedAudioClips[0].name != audioClip.name) { 
+                if (audioClip.name == secondName)
                 {
-                    selectedAudioClips.Add(audioClip);
-                    i++;
+                    if (i == 0)
+                    {
+                        selectedAudioClips.Add(audioClip);        
+                        Debug.Log("added to selected: " + selectedAudioClips[1]);
+                        i++;
+                    }
                 }
             }
         }
-
-//        selectedAudioClips.Add(audioClips[0]);
-        //selectedAudioClips.Add(audioClips[1]);
     }
 
     public void GetFilesInDirectory()
@@ -297,12 +313,11 @@ public class LoadAudioFiles : MonoBehaviour
         foreach (FileInfo file in files)
         {
             string extension = Path.GetExtension(file.FullName);
-            if (ValidType(extension))
-                
+            if (ValidType(extension)) { 
                 loadItemsToDropdown(file.Name);
-                //dodac do ifa dodanie do rozwijanych list w unity nazw plikow aby uzytkownik mogl wybrac jaki plik ma byc laczony z innym
                 LoadFile(file.FullName);
                 Debug.Log(file.FullName);
+            }
         }
     }
 
@@ -315,18 +330,17 @@ public class LoadAudioFiles : MonoBehaviour
 
     public void LoadFile(string path)
     {
-        if ((path.Contains(".ogg") || path.Contains(".wav")) && !path.Contains(".meta")){ 
-            WWW www = new WWW("file://" + path);
-            AudioClip clip = www.GetAudioClip(false);
-            while (!clip.isReadyToPlay)
-            { 
+        WWW www = new WWW("file://" + path);
+        AudioClip clip = www.GetAudioClip(false);
+        while (!clip.isReadyToPlay)
+        { 
 
-            }
-            string[] parts = path.Split("\\"[0]);
-            clip.name = parts[parts.Length - 1];
-            audioClips.Add(clip);
         }
+        string[] parts = path.Split("\\"[0]);
+        clip.name = parts[parts.Length - 1];
+        audioClips.Add(clip);
     }
 
 }
+
 
