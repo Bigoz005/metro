@@ -66,7 +66,6 @@ public class LoadAudioFiles : MonoBehaviour
         return tempPath;
     }
 
-
     public void Start()
     {
         audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
@@ -308,6 +307,9 @@ public class LoadAudioFiles : MonoBehaviour
 
     public void GetFilesInDirectory()
     {
+        dropdown1.ClearOptions();
+        dropdown2.ClearOptions();
+
         DirectoryInfo info = new DirectoryInfo(path);
         files = info.GetFiles();
         foreach (FileInfo file in files)

@@ -22,6 +22,7 @@ public class Metronome : MonoBehaviour
     private bool ticked = false;
     private bool playing = false;
     private bool vibrationsOn = true;
+    private bool colorChange = true;
 
     public void setVibrationsOnOff()
     {
@@ -31,6 +32,18 @@ public class Metronome : MonoBehaviour
         }else
         {
             vibrationsOn = true;
+        }
+    }
+
+    public void setColorsOnOff()
+    {
+        if (colorChange)
+        {
+            colorChange = false;
+        }
+        else
+        {
+            colorChange = true;
         }
     }
 
@@ -154,8 +167,10 @@ public class Metronome : MonoBehaviour
             {
                 Debug.Log("Accent");
                 accentTick.Play();
-                this.background.color = new Color(1, 0, 0, 1);
-                this.textNumber.color = new Color(0, 0, 1, 1);
+                if (colorChange) { 
+                    this.background.color = new Color(1, 0, 0, 1);
+                    this.textNumber.color = new Color(0, 0, 1, 1);
+                }
                 if (vibrationsOn) {
                     Debug.Log("Vibrate");
                     Vibration.Vibrate(50, 255, true);
@@ -167,8 +182,11 @@ public class Metronome : MonoBehaviour
             { 
                 Debug.Log("Tick");
                 tick.Play();
-                this.background.color = new Color(0, 1, 0, 1);
-                this.textNumber.color = new Color(1, 0, 0, 1);
+                if (colorChange)
+                {
+                    this.background.color = new Color(0, 1, 0, 1);
+                    this.textNumber.color = new Color(1, 0, 0, 1);
+                }
                 i = 1;
             }
         }
@@ -178,8 +196,11 @@ public class Metronome : MonoBehaviour
             {
                 Debug.Log("Accent");
                 accentTick.Play();
-                this.background.color = new Color(1, 0, 0, 1);
-                this.textNumber.color = new Color(0, 0, 1, 1);
+                if (colorChange)
+                {
+                    this.background.color = new Color(1, 0, 0, 1);
+                    this.textNumber.color = new Color(0, 0, 1, 1);
+                }
                 if (vibrationsOn)
                 {
                     Debug.Log("Vibrate");
@@ -192,8 +213,11 @@ public class Metronome : MonoBehaviour
             {
                 Debug.Log("Tick");
                 tick.Play();
-                this.background.color = new Color(0, 1, 0, 1);
-                this.textNumber.color = new Color(1, 0, 0, 1);
+                if (colorChange)
+                {
+                    this.background.color = new Color(0, 1, 0, 1);
+                    this.textNumber.color = new Color(1, 0, 0, 1);
+                }
                 i++;
             }
         }
