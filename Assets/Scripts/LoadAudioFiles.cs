@@ -13,13 +13,13 @@ public class LoadAudioFiles : MonoBehaviour
     static string[] fileTypes = {"ogg", "wav" }; // Valid file types
  
     static FileInfo[] files;
-    static AudioSource audioSource;
+    private AudioSource audioSource;
     static List<AudioClip> audioClips = new List<AudioClip>();
-    static Text text, fileTitle, fileTime, volumeText, panText, pitchText, reverbText;
+    public Text text, fileTitle, fileTime, volumeText, panText, pitchText, reverbText;
     private List<AudioClip> selectedAudioClips = new List<AudioClip>();
-    AudioClipCombine audioClipCombine;
+    private AudioClipCombine audioClipCombine;
     private AudioClip result;
-    private Dropdown dropdown1, dropdown2, dropdown3;
+    public Dropdown dropdown1, dropdown2, dropdown3;
     private int frequency = 44100;
     private int channels = 2;
     private string firstName;
@@ -29,13 +29,13 @@ public class LoadAudioFiles : MonoBehaviour
 
     public void Start()
     {
+        
+        text = GameObject.Find("Text").GetComponent<Text>();
+        /*
         dropdown1 = GameObject.Find("SelectFile1").GetComponent<Dropdown>();
-        dropdown1.ClearOptions();
         dropdown2 = GameObject.Find("SelectFile2").GetComponent<Dropdown>();
-        dropdown2.ClearOptions();
         dropdown3 = GameObject.Find("SelectFileToPlay").GetComponent<Dropdown>();
-        dropdown3.ClearOptions();
-        text = GetComponentInChildren<Text>();
+        
         fileTitle = GameObject.Find("FileName").GetComponent<Text>();
         fileTime = GameObject.Find("FileTime").GetComponent<Text>();
 
@@ -43,16 +43,12 @@ public class LoadAudioFiles : MonoBehaviour
         panText = GameObject.Find("PanValueText").GetComponent<Text>();
         pitchText = GameObject.Find("PitchValueText").GetComponent<Text>();
         reverbText = GameObject.Find("ReverbValueText").GetComponent<Text>();
-
-        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
         
         audioSource = GetComponent<AudioSource>();
+        */
 
-        if (audioSource == null) { 
-            audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
-        }
-
-        setDefaultAudioSourceParams();
+        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
+        audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
 
         // If in editor the path is in Assets folder
         if (Application.isEditor) { 
@@ -61,26 +57,43 @@ public class LoadAudioFiles : MonoBehaviour
             text.text = "";
             text.text = "Path: " + path;
         }
-        else
+        else 
         {
-            path = GetAndroidExternalStoragePath();
+            path = Application.persistentDataPath;
+            //path = GetAndroidExternalFilesDir();
             if (path == null) {
-                path = GetAndroidExternalFilesDir();
+              //  path = GetAndroidExternalStoragePath();
                 //AndroidJavaClass jc = new AndroidJavaClass("android.os.Environment");
                 //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").ToString();
                 //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<String>("getAbsolutePath");
             }
-            if (!Directory.Exists(path + "/assetsFiles"))
+            //pathStart = "/mnt/sdcard/SongFiles";
+            
+
+            if (!Directory.Exists(path + "/Files"))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(path + "/assetsFiles"));
+                Directory.CreateDirectory(path + "/Files");
             }
-            path += "/assetsFiles";
-            path = path.Substring(1);
+            path += "/Files";
+            //path = path.Substring(1);
             text.text = "";
             text.text = "Path: " + path;
         }
 
+ 
+        
+
+        dropdown1.ClearOptions();
+        dropdown2.ClearOptions();
+        dropdown3.ClearOptions();
+
+        setDefaultAudioSourceParams();
         GetFilesInDirectory();
+    }
+
+    public void initializeVars()
+    {
+        
     }
 
     public static string GetAndroidExternalFilesDir()
@@ -279,7 +292,7 @@ public class LoadAudioFiles : MonoBehaviour
     {
         if(channelsInput.text != "") { 
             int tempChannels = int.Parse(channelsInput.text);
-            if (tempChannels > 0 && tempChannels != null && tempChannels <= 2)
+            if (tempChannels > 0 && tempChannels <= 2)
             {
                 this.channels = tempChannels;
                 text.text = "You set channels to: " + this.channels;
@@ -295,7 +308,7 @@ public class LoadAudioFiles : MonoBehaviour
     {
         if(frequencyInput.text != "") { 
             int tempFrequency = int.Parse(frequencyInput.text);
-            if (tempFrequency > 8000 && tempFrequency != null && tempFrequency <= 192000)
+            if (tempFrequency > 8000 && tempFrequency <= 192000)
             {
                 this.frequency = tempFrequency;
                 text.text = "You set frequency to: " + this.frequency;
@@ -446,6 +459,7 @@ public class LoadAudioFiles : MonoBehaviour
     {
         dropdown1.ClearOptions();
         dropdown2.ClearOptions();
+        dropdown3.ClearOptions();
 
         DirectoryInfo info = new DirectoryInfo(path);
         files = info.GetFiles();
@@ -471,9 +485,9 @@ public class LoadAudioFiles : MonoBehaviour
     {
         WWW www = new WWW("file://" + path);
         AudioClip clip = www.GetAudioClip(false);
-        while (!clip.isReadyToPlay)
-        { 
-
+        while (clip.loadState != AudioDataLoadState.Loaded)
+        {
+            
         }
         string[] parts = path.Split("\\"[0]);
         clip.name = parts[parts.Length - 1];
