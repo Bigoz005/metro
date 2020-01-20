@@ -15,24 +15,36 @@ public class LoadAudioFiles : MonoBehaviour
     static FileInfo[] files;
     static AudioSource audioSource;
     static List<AudioClip> audioClips = new List<AudioClip>();
-    static Text text;
+    static Text text, fileTitle, fileTime;
     private List<AudioClip> selectedAudioClips = new List<AudioClip>();
     AudioClipCombine audioClipCombine;
     private AudioClip result;
-    private Dropdown dropdown1, dropdown2;
+    private Dropdown dropdown1, dropdown2, dropdown3;
     private int frequency = 44100;
     private int channels = 2;
     private string firstName;
     private string secondName;
+    private int fullLenght, playTime, seconds, minutes;
 
     public void Start()
     {
-        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
         dropdown1 = GameObject.Find("SelectFile1").GetComponent<Dropdown>();
         dropdown1.ClearOptions();
         dropdown2 = GameObject.Find("SelectFile2").GetComponent<Dropdown>();
         dropdown2.ClearOptions();
+        dropdown3 = GameObject.Find("SelectFileToPlay").GetComponent<Dropdown>();
+        dropdown3.ClearOptions();
         text = GetComponentInChildren<Text>();
+        fileTitle = GameObject.Find("FileName").GetComponent<Text>();
+        fileTime = GameObject.Find("FileTime").GetComponent<Text>();
+
+        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
+        
+        audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null) { 
+            audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+        }
 
         // If in editor the path is in Assets folder
         if (Application.isEditor) { 
@@ -50,11 +62,11 @@ public class LoadAudioFiles : MonoBehaviour
                 //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").ToString();
                 //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<String>("getAbsolutePath");
             }
-            if (!Directory.Exists(path + "/assets"))
+            if (!Directory.Exists(path + "/assetsFiles"))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(path + "/assets"));
+                Directory.CreateDirectory(Path.GetDirectoryName(path + "/assetsFiles"));
             }
-            path += "/assets";
+            path += "/assetsFiles";
             path = path.Substring(1);
             text.text = "";
             text.text = "Path: " + path;
@@ -271,9 +283,93 @@ public class LoadAudioFiles : MonoBehaviour
        
         dropdown1.options.Add(new Dropdown.OptionData() { text = fileName });
         dropdown2.options.Add(new Dropdown.OptionData() { text = fileName });
+        dropdown3.options.Add(new Dropdown.OptionData() { text = fileName });
 
         dropdown1.RefreshShownValue();
         dropdown2.RefreshShownValue();
+        dropdown3.RefreshShownValue();
+    }
+
+    public void setSelectedAudioToPlay(Dropdown dropdown3)
+    {
+        String clipName = dropdown3.options[dropdown3.value].text;
+        foreach (AudioClip audioClip in audioClips)
+        {
+            if (audioClip.name == clipName)
+            {
+                audioSource.clip = audioClip;
+                break;
+            }
+        }
+
+    }
+
+    public void ShowTitle()
+    {
+        fileTitle.text = audioSource.clip.name;
+        fullLenght = (int)audioSource.clip.length;
+    }
+
+    public void ShowTime()
+    {
+        seconds = playTime % 60;
+        minutes = (playTime / 60) % 60;
+        fileTime.text = minutes + ":" + seconds.ToString("D2") + "/" + ((fullLenght / 60) % 60) + ":" + (fullLenght % 60).ToString("D2");
+    }
+
+    public void PlayMusic()
+    {
+        if (audioSource.isPlaying)
+        {
+            return;
+        }
+        else
+        {
+            setSelectedAudioToPlay(dropdown3);
+            fullLenght = (int)audioSource.clip.length;
+            fileTitle.text = audioSource.clip.name;
+            audioSource.Play();
+            StartCoroutine(WaitForMusicEnd());
+        }
+    }
+
+    IEnumerator WaitForMusicEnd()
+    {
+        while (audioSource.isPlaying)
+        {
+            playTime = (int)audioSource.time;
+            ShowTime();
+            yield return null;
+        }
+    }
+
+    public void StopMusic()
+    {
+        StopCoroutine("WaitForMusicEnd");
+        audioSource.Stop();
+    }
+
+    public void PauseMusic()
+    {
+        if (audioSource.isPlaying)
+        {
+            audioSource.Pause();
+        }
+        else
+        {
+            audioSource.Play();
+        }
+    }
+
+    public void MuteSound()
+    {
+        if(audioSource.mute == false) { 
+            audioSource.mute = true;
+        }
+        else
+        {
+            audioSource.mute = false;
+        }
     }
 
     public void setSelectedAudioClips(Dropdown dropdown1, Dropdown dropdown2)
