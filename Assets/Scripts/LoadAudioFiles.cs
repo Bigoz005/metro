@@ -15,7 +15,7 @@ public class LoadAudioFiles : MonoBehaviour
     static FileInfo[] files;
     static AudioSource audioSource;
     static List<AudioClip> audioClips = new List<AudioClip>();
-    static Text text, fileTitle, fileTime;
+    static Text text, fileTitle, fileTime, volumeText, panText, pitchText, reverbText;
     private List<AudioClip> selectedAudioClips = new List<AudioClip>();
     AudioClipCombine audioClipCombine;
     private AudioClip result;
@@ -24,6 +24,7 @@ public class LoadAudioFiles : MonoBehaviour
     private int channels = 2;
     private string firstName;
     private string secondName;
+    private float volume, pan, pitch, reverb;
     private int fullLenght, playTime, seconds, minutes;
 
     public void Start()
@@ -38,6 +39,11 @@ public class LoadAudioFiles : MonoBehaviour
         fileTitle = GameObject.Find("FileName").GetComponent<Text>();
         fileTime = GameObject.Find("FileTime").GetComponent<Text>();
 
+        volumeText = GameObject.Find("VolumeValueText").GetComponent<Text>();
+        panText = GameObject.Find("PanValueText").GetComponent<Text>();
+        pitchText = GameObject.Find("PitchValueText").GetComponent<Text>();
+        reverbText = GameObject.Find("ReverbValueText").GetComponent<Text>();
+
         audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
         
         audioSource = GetComponent<AudioSource>();
@@ -45,6 +51,8 @@ public class LoadAudioFiles : MonoBehaviour
         if (audioSource == null) { 
             audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
         }
+
+        setDefaultAudioSourceParams();
 
         // If in editor the path is in Assets folder
         if (Application.isEditor) { 
@@ -202,21 +210,60 @@ public class LoadAudioFiles : MonoBehaviour
         }
     }
 
-    public void setVolume(AudioClip audioClip, float vol)
+    private void setDefaultAudioSourceParams()
     {
-        audioSource.clip = audioClip;
-        if (vol >= 0 && vol <= 1)
-        {
-            audioSource.volume = vol;
-        }
+        audioSource.volume = 1;
+        audioSource.panStereo = 0;
+        audioSource.pitch = 1;
+        audioSource.reverbZoneMix = 0;
     }
 
-    public void SetPitch(AudioClip audioClip, float pitch)
+    public void getVolumeValue(Slider slider)
     {
-        audioSource.clip = audioClip;
-        if(pitch >= -3 && pitch <= 3) { 
-            audioSource.pitch = pitch;
-        }
+        volume = slider.value;
+        volumeText.text = volume.ToString("F2");
+        setVolume();
+    }
+
+    private void setVolume()
+    {
+        audioSource.volume = volume;
+    }
+
+    public void getPitchValue(Slider slider)
+    {
+        pitch = slider.value;
+        pitchText.text = pitch.ToString("F2");
+        SetPitch();
+    }
+
+    private void SetPitch()
+    {
+        audioSource.pitch = pitch;
+    }
+
+    public void getReverbValue(Slider slider)
+    {
+        reverb = slider.value;
+        reverbText.text = reverb.ToString("F2");
+        SetReverb();
+    }
+
+    private void SetReverb()
+    {
+        audioSource.reverbZoneMix = reverb;
+    }
+
+    public void getPanoramaValue(Slider slider)
+    {
+        pan = slider.value;
+        panText.text = pan.ToString("F2");
+        SetPan();
+    }
+
+    private void SetPan()
+    {
+        audioSource.panStereo = pan;  
     }
 
     public void SetTime(AudioClip audioClip, int time)
@@ -225,24 +272,6 @@ public class LoadAudioFiles : MonoBehaviour
         if (time >= 0 && time <= audioClip.length)
         {
             audioSource.timeSamples = time;
-        }
-    }
-
-    public void SetReverb(AudioClip audioClip, float reverb)
-    {
-        audioSource.clip = audioClip;
-        if (reverb >= 0 && reverb <= 1.1)
-        {
-            audioSource.reverbZoneMix = reverb;
-        }
-    }
-
-    public void SetPan(AudioClip audioClip, float pan)
-    {
-        audioSource.clip = audioClip;
-        if (pan >= -1 && pan <= 1)
-        {
-            audioSource.panStereo = pan;
         }
     }
 
@@ -346,6 +375,7 @@ public class LoadAudioFiles : MonoBehaviour
     public void StopMusic()
     {
         StopCoroutine("WaitForMusicEnd");
+        fileTime.text = "00:00/00:00";
         audioSource.Stop();
     }
 
@@ -358,6 +388,7 @@ public class LoadAudioFiles : MonoBehaviour
         else
         {
             audioSource.Play();
+            StartCoroutine(WaitForMusicEnd());
         }
     }
 
