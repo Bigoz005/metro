@@ -25,6 +25,44 @@ public class LoadAudioFiles : MonoBehaviour
     private string firstName;
     private string secondName;
 
+    public void Start()
+    {
+        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
+        dropdown1 = GameObject.Find("SelectFile1").GetComponent<Dropdown>();
+        dropdown1.ClearOptions();
+        dropdown2 = GameObject.Find("SelectFile2").GetComponent<Dropdown>();
+        dropdown2.ClearOptions();
+        text = GetComponentInChildren<Text>();
+
+        // If in editor the path is in Assets folder
+        if (Application.isEditor) { 
+            path = "/Assets";
+            path = path.Substring(1);
+            text.text = "";
+            text.text = "Path: " + path;
+        }
+        else
+        {
+            path = GetAndroidExternalStoragePath();
+            if (path == null) {
+                path = GetAndroidExternalFilesDir();
+                //AndroidJavaClass jc = new AndroidJavaClass("android.os.Environment");
+                //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").ToString();
+                //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<String>("getAbsolutePath");
+            }
+            if (!Directory.Exists(path + "/assets"))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path + "/assets"));
+            }
+            path += "/assets";
+            path = path.Substring(1);
+            text.text = "";
+            text.text = "Path: " + path;
+        }
+
+        GetFilesInDirectory();
+    }
+
     public static string GetAndroidExternalFilesDir()
     {
         string[] potentialDirectories = new string[]
@@ -66,51 +104,20 @@ public class LoadAudioFiles : MonoBehaviour
         return tempPath;
     }
 
-    public void Start()
-    {
-        audioClipCombine = gameObject.AddComponent<AudioClipCombine>();
-        dropdown1 = GameObject.Find("SelectFile1").GetComponent<Dropdown>();
-        dropdown1.ClearOptions();
-        dropdown2 = GameObject.Find("SelectFile2").GetComponent<Dropdown>();
-        dropdown2.ClearOptions();
-        text = GetComponentInChildren<Text>();
-
-        // If in editor the path is in Assets folder
-        if (Application.isEditor) { 
-            path = "/Assets";
-            path = path.Substring(1);
-            text.text = "";
-            text.text = "Path: " + path;
-        }
-        else
-        {
-            path = GetAndroidExternalStoragePath();
-            if (path == null) { 
-            //AndroidJavaClass jc = new AndroidJavaClass("android.os.Environment");
-            //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").ToString();
-            //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<String>("getAbsolutePath");
-            path = GetAndroidExternalFilesDir();
-            }
-            path += "/Music";
-            path = path.Substring(1);
-            text.text = "Path: " + path;
-            text.text = "";
-        }
-
-        GetFilesInDirectory();
-    }
-
     public void SaveMultipleSeparately(InputField fileNameInput)
     {
         String fileName = fileNameInput.text;
         if (fileName != null && fileName != "")
-        {
+        { 
+
             setSelectedAudioClips(dropdown1, dropdown2);
+
             if (selectedAudioClips.Count > 1)
             {
                 result = audioClipCombine.CombineMany(selectedAudioClips[0], selectedAudioClips[1]);
                 SavWav.Save(fileName, result);
                 selectedAudioClips.Clear();
+                GetFilesInDirectory();
             }
             else
             {
@@ -126,6 +133,7 @@ public class LoadAudioFiles : MonoBehaviour
         String fileName = fileNameInput.text;
         if (fileName != null && fileName != "")
         {
+
             setSelectedAudioClips(dropdown1, dropdown2);
             if (selectedAudioClips.Count > 1)
             {
@@ -133,6 +141,7 @@ public class LoadAudioFiles : MonoBehaviour
                 SavWav.Save(fileName, result);
                 text.text = "File is saved as:" + fileName + ".wav";
                 selectedAudioClips.Clear();
+                GetFilesInDirectory();
             }
             else
             {
@@ -156,6 +165,7 @@ public class LoadAudioFiles : MonoBehaviour
             // audioSource = GetComponent<AudioSource>();
             //if (audioSource == null)
             // audioSource = gameObject.AddComponent(typeof(AudioSource)) as AudioSource;
+
             setSelectedAudioClips(dropdown1, dropdown2);
 
             if (selectedAudioClips.Count > 1)
@@ -167,6 +177,7 @@ public class LoadAudioFiles : MonoBehaviour
                 SavWav.Save(fileName, result);
                 text.text = "File is saved as: " + fileName + ".wav";
                 selectedAudioClips.Clear();
+                GetFilesInDirectory();
             }
             else
             {
@@ -257,8 +268,7 @@ public class LoadAudioFiles : MonoBehaviour
     
     public void loadItemsToDropdown(String fileName)
     {
-       //dodac zeby sie odswiezalo a nie dodawalo caly czas, nie mozna tu dac czyszczenia bo bedzie czyscic co element zostawiajac jeden w dropdownie
-
+       
         dropdown1.options.Add(new Dropdown.OptionData() { text = fileName });
         dropdown2.options.Add(new Dropdown.OptionData() { text = fileName });
 
@@ -267,7 +277,7 @@ public class LoadAudioFiles : MonoBehaviour
     }
 
     public void setSelectedAudioClips(Dropdown dropdown1, Dropdown dropdown2)
-    {
+    { 
 
         firstName = dropdown1.options[dropdown1.value].text;
         secondName = dropdown2.options[dropdown2.value].text;

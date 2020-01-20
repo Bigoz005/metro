@@ -5,34 +5,28 @@ using System.Collections.Generic;
 
 public static class SavWav
 {
-
     const int HEADER_SIZE = 44;
 
-    public static bool Save(string filename, AudioClip clip)
+    public static void Save(string filename, AudioClip clip)
     {
         if (!filename.ToLower().EndsWith(".wav"))
         {
             filename += ".wav";
         }
 
-//        var filepath = Path.Combine(Application.persistentDataPath, filename);
         var filepath = Path.Combine(Application.dataPath, filename);
 
-        Debug.Log("Saving in: " + filepath);
-
-        // Make sure directory exists if user is saving to sub dir.
+        // tworzy sciezke jestli nie istnieje
         Directory.CreateDirectory(Path.GetDirectoryName(filepath));
 
         using (var fileStream = CreateEmpty(filepath))
         {
-
             ConvertAndWrite(fileStream, clip);
 
             WriteHeader(fileStream, clip);
         }
 
         Debug.Log("File saved");
-        return true; // TODO: return false if there's a failure saving the file
     }
 
     public static AudioClip TrimSilence(AudioClip clip, float min)
@@ -85,7 +79,7 @@ public static class SavWav
         var fileStream = new FileStream(filepath, FileMode.Create);
         byte emptyByte = new byte();
 
-        for (int i = 0; i < HEADER_SIZE; i++) //preparing the header
+        for (int i = 0; i < HEADER_SIZE; i++) //stworzenie naglowka
         {
             fileStream.WriteByte(emptyByte);
         }
@@ -95,17 +89,16 @@ public static class SavWav
 
     static void ConvertAndWrite(FileStream fileStream, AudioClip clip)
     {
-
         var samples = new float[clip.samples];
-
+        Byte[] bytesData = new byte[2];
         clip.GetData(samples, 0);
 
         Int16[] intData = new Int16[samples.Length];
-        //converting in 2 float[] steps to Int16[], //then Int16[] to Byte[]
-
-        Byte[] bytesData = new Byte[samples.Length * 2];
-        //bytesData array is twice the size of
-        //dataSource array because a float converted in Int16 is 2 bytes.
+        //konwersja float[] na Int16[] 
+        
+            bytesData = new Byte[samples.Length * 2];
+        
+        //konwersja Int16[] to Byte[] razy 2 bo tablica bytesData jest dwa razy wieksza od tablicy dataSource bo floaty zmieniamy na Int16 ktore sa 2 bitowe;
 
         int rescaleFactor = 32767; //to convert float to Int16
 
@@ -156,7 +149,7 @@ public static class SavWav
         Byte[] sampleRate = BitConverter.GetBytes(hz);
         fileStream.Write(sampleRate, 0, 4);
 
-        Byte[] byteRate = BitConverter.GetBytes(hz * channels * 2); // sampleRate * bytesPerSample*number of channels, here 44100*2*2
+        Byte[] byteRate = BitConverter.GetBytes(hz * channels * 2); //sampleRate * bytesPerSample * channels, 44100 * 2 * 2
         fileStream.Write(byteRate, 0, 4);
 
         UInt16 blockAlign = (ushort)(channels * 2);
@@ -171,7 +164,6 @@ public static class SavWav
 
         Byte[] subChunk2 = BitConverter.GetBytes(samples * channels * 2);
         fileStream.Write(subChunk2, 0, 4);
-
-        //		fileStream.Close();
+        
     }
 }

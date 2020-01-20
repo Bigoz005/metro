@@ -157,7 +157,6 @@ public class Metronome : MonoBehaviour
         }
     }
 
-    // Just an example OnTick here
     void OnTick()
     {
         this.textNumber.text = i.ToString();
@@ -174,7 +173,6 @@ public class Metronome : MonoBehaviour
                 if (vibrationsOn) {
                     Debug.Log("Vibrate");
                     Vibration.Vibrate(50, 255, true);
-                    //Vibration.Vibrate(50, Vibration.PredefinedEffect.EFFECT_HEAVY_CLICK, true);
                 }
                 i = 1;
             }
@@ -205,7 +203,6 @@ public class Metronome : MonoBehaviour
                 {
                     Debug.Log("Vibrate");
                     Vibration.Vibrate(50, 255, true);
-                    //Vibration.Vibrate(50, Vibration.PredefinedEffect.EFFECT_HEAVY_CLICK, true);
                 }
                 i++;
             }

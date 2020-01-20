@@ -78,14 +78,12 @@ public class AudioClipCombine : MonoBehaviour
     {
         float[] floatSamplesA = new float[clipA.samples * clipA.channels];
         clipA.GetData(floatSamplesA, 0);
-        //byte[] byteArrayA = floatToByte(floatSamplesA);
 
         float[] floatSamplesB = new float[clipB.samples * clipB.channels];
         clipB.GetData(floatSamplesB, 0);
-        //byte[] byteArrayB = floatToByte(floatSamplesB);
 
         float[] mixedFloatArray = MixAndClampFloatBuffers(floatSamplesA, floatSamplesB);
-        //float[] mixedFloatArray = byteToFloat(mixedBuffers);
+        
         AudioClip result = AudioClip.Create("Mixed", mixedFloatArray.Length, channels, frequency, false);
         result.SetData(mixedFloatArray, 0);
         return result;
