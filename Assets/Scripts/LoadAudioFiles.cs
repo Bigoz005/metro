@@ -59,23 +59,24 @@ public class LoadAudioFiles : MonoBehaviour
         }
         else 
         {
-            path = Application.persistentDataPath;
-            //path = GetAndroidExternalFilesDir();
+            //path = Application.persistentDataPath;
+            
+            path = GetAndroidExternalStoragePath();
             if (path == null) {
-              //  path = GetAndroidExternalStoragePath();
+                //path = GetAndroidExternalFilesDir();    
                 //AndroidJavaClass jc = new AndroidJavaClass("android.os.Environment");
                 //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").ToString();
                 //path = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<String>("getAbsolutePath");
             }
             //pathStart = "/mnt/sdcard/SongFiles";
-            
 
-            if (!Directory.Exists(path + "/Files"))
+
+            if (!Directory.Exists(path + "/FilesInz"))
             {
-                Directory.CreateDirectory(path + "/Files");
+                Directory.CreateDirectory(path + "/FilesInz");
             }
-            path += "/Files";
-            //path = path.Substring(1);
+            path += "/FilesInz";
+            path = path.Substring(1);
             text.text = "";
             text.text = "Path: " + path;
         }
