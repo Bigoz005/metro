@@ -13,13 +13,23 @@ public static class SavWav
         {
             filename += ".wav";
         }
+        var filePath = "";
 
-        var filepath = Path.Combine(Application.dataPath, filename);
+        if (Application.isEditor) { 
+            filePath = Path.Combine(Application.dataPath, filename);
+        }
+        else
+        {
+            String tempPath = "";
+            AndroidJavaClass jc = new AndroidJavaClass("android.os.Environment");
+            tempPath = jc.CallStatic<AndroidJavaObject>("getExternalStorageDirectory").Call<string>("getAbsolutePath");
+            tempPath += "/FilesInz";
+            filePath = Path.Combine(tempPath, filename);
+            //filePath = tempPath + "/FilesInz/" + filename;
+            //filePath = filePath.Substring(1);
+        }
 
-        // tworzy sciezke jestli nie istnieje
-        Directory.CreateDirectory(Path.GetDirectoryName(filepath));
-
-        using (var fileStream = CreateEmpty(filepath))
+        using (var fileStream = CreateEmpty(filePath))
         {
             ConvertAndWrite(fileStream, clip);
 
