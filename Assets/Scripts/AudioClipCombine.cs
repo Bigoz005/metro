@@ -78,9 +78,19 @@ public class AudioClipCombine : MonoBehaviour
     {
         float[] floatSamplesA = new float[clipA.samples * clipA.channels];
         clipA.GetData(floatSamplesA, 0);
-
+       
         float[] floatSamplesB = new float[clipB.samples * clipB.channels];
         clipB.GetData(floatSamplesB, 0);
+
+        float timeOfResult;
+        
+        if (clipA.length > clipB.length){
+            timeOfResult = clipA.length;
+        }
+        else
+        {
+            timeOfResult = clipB.length; // 
+        }
 
         float[] mixedFloatArray = MixAndClampFloatBuffers(floatSamplesA, floatSamplesB);
         
@@ -90,30 +100,38 @@ public class AudioClipCombine : MonoBehaviour
             clipC.GetData(floatSamplesC, 0);
 
             float[] floatSampleMetro = new float[mixedFloatArray.Length];// pusta tablica dla metronomu, dlugosc wyjsciowego audioclipu
-            
-            Debug.Log(bpm);
-            double tick = 60.0 / bpm;//dlugosc jednego ticku
-            Debug.Log("tick: " + tick);
-            double ticksAmount = mixedFloatArray.Length / (1/tick);//ilosc tickow mieszaca się w floatSampleMetro
-            Debug.Log("ticksAmount: " + ticksAmount);
 
-            int difference = (int)Math.Floor(tick);//tick jako int
+            Debug.Log("timeOfResult: " + timeOfResult);
+
+            Debug.Log("bpm: " + bpm);
+            double tick = 60.0 / bpm;// ile sekund trwa 1 tick
+            Debug.Log("tick: " + tick);
+
+            double ticksAmount;
+            ticksAmount = (int)(timeOfResult / tick);// ilosc tickow mieszaca się w utworze
+
+            Debug.Log("ticksAmount: " + ticksAmount);
             
-            Debug.Log("difference: " + difference);
+            //Debug.Log("difference: " + difference);
 
             int j = 0;
+            int addedTicksAmount = 0;
             for (int i = 0; i < floatSampleMetro.Length; i++) {
                 //DODAC ZEBY DALO SIE USTAWIC TEMPO
-                if (floatSamplesC.Length > j) { 
-                    floatSampleMetro[i] = floatSamplesC[j];
-                    j++;
-                }
-                else
-                {
-                    j = 0;
+                if(addedTicksAmount < ticksAmount) { 
+                    if (floatSamplesC.Length > j) { 
+                        floatSampleMetro[i] = floatSamplesC[j];
+                        j++;
+                    }
+                    else
+                    {
+                        addedTicksAmount++;
+                        j = 0;
+                    }
                 }
             }
-            Debug.Log("Ticks Amount: " + ticksAmount + " j is: " + j);
+
+            Debug.Log("Ticks Amount: " + ticksAmount + " Added amount: " + addedTicksAmount);
             float[] mixedFloatArrayWithMetronome = MixAndClampFloatBuffers(mixedFloatArray, floatSampleMetro); //polaczenie obu sampli z samplem metronomu
 
             AudioClip result = AudioClip.Create("Mixed", mixedFloatArrayWithMetronome.Length, channels, frequency, false);

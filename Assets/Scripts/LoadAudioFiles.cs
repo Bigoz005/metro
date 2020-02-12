@@ -30,7 +30,7 @@ public class LoadAudioFiles : MonoBehaviour
     private float volume, pan, pitch, reverb;
     private int fullLenght, playTime, seconds, minutes;
     private int metronomeAccents = 4;
-    private int metronomeBPM = 100;
+    private int metronomeBPM = 120;
 
     public void Start()
     {
@@ -139,7 +139,7 @@ public class LoadAudioFiles : MonoBehaviour
 
             if (selectedAudioClips.Count > 1)
             {
-                Debug.Log("SelectedAudioClips: " + selectedAudioClips.Capacity);
+                Debug.Log("SelectedAudioClips Capacity: " + selectedAudioClips.Capacity);
                 AudioClip result = audioClipCombine.CombineMany(selectedAudioClips[0], selectedAudioClips[1]);
                 SavWav.Save(fileName, result);
                 selectedAudioClips.Clear();
@@ -368,7 +368,7 @@ public class LoadAudioFiles : MonoBehaviour
         dropdown1.RefreshShownValue();
         dropdown2.RefreshShownValue();
         dropdown3.RefreshShownValue();
-        Debug.Log("Loaded to dropdowns:" + fileName);
+        
     }
 
     public void setSelectedAudioToPlay(Dropdown dropdown3)
@@ -471,7 +471,7 @@ public class LoadAudioFiles : MonoBehaviour
         
         int i = 0;
         foreach(AudioClip audioClip in audioClips) {
-            Debug.Log(audioClip.name);
+            
             if (audioClip.name == firstName)
             {
                 if (i==0)
@@ -515,7 +515,6 @@ public class LoadAudioFiles : MonoBehaviour
         {
             string extension = Path.GetExtension(file.FullName);
             if (ValidType(extension)) {
-                Debug.Log(file.FullName);
                 loadItemsToDropdown(file.Name);
                 LoadFile(file.FullName, file.Name);                
             }
@@ -531,8 +530,7 @@ public class LoadAudioFiles : MonoBehaviour
 
     public void LoadFile(string path, string fileName)
     {
-        WWW www = new WWW("file://" + path);
-        Debug.Log("WWW Url:" + www.url);
+        WWW www = new WWW("file://" + path);        
         AudioClip clip = www.GetAudioClip(false);
         while (clip.loadState != AudioDataLoadState.Loaded)
         {
@@ -547,7 +545,6 @@ public class LoadAudioFiles : MonoBehaviour
             clip.name = fileName;
         }
         
-        Debug.Log("Clip Name After load:" + clip.name);
         audioClips.Add(clip);
     }
 
