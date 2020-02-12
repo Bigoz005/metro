@@ -17,16 +17,20 @@ public class LoadAudioFiles : MonoBehaviour
     public Text text, fileTitle, fileTime, volumeText, panText, pitchText, reverbText;
     public Dropdown dropdown1, dropdown2, dropdown3;
     public AudioClipCombine audioClipCombine;
+    public AudioClip metroClip;
 
     private List<AudioClip> audioClips;
     private List<AudioClip> selectedAudioClips;
-    
+
+    private bool addMetronome = false;
     private int frequency = 44100;
     private int channels = 2;
     private string firstName;
     private string secondName;
     private float volume, pan, pitch, reverb;
     private int fullLenght, playTime, seconds, minutes;
+    private int metronomeAccents = 4;
+    private int metronomeBPM = 100;
 
     public void Start()
     {
@@ -189,7 +193,8 @@ public class LoadAudioFiles : MonoBehaviour
             if (selectedAudioClips.Count > 1)
             {
                 Debug.Log("SelectedAudioClips: " + selectedAudioClips.Capacity);
-                AudioClip result = audioClipCombine.MixAudioFiles(selectedAudioClips[0], selectedAudioClips[1], this.channels, this.frequency);
+                AudioClip result = audioClipCombine.MixAudioFiles(selectedAudioClips[0], selectedAudioClips[1], this.metroClip, this.channels, this.frequency, this.addMetronome, this.metronomeBPM, this.metronomeAccents);
+                Debug.Log("Created result");
                 SavWav.Save(fileName, result);
                 text.text = "File is saved as: " + fileName + ".wav";
                 selectedAudioClips.Clear();
@@ -262,12 +267,62 @@ public class LoadAudioFiles : MonoBehaviour
         audioSource.panStereo = pan;  
     }
 
+    public void addMetronomeButton()
+    {
+        this.addMetronome = !this.addMetronome;
+        Debug.Log(this.addMetronome);
+        if (addMetronome)
+        {
+            this.text.text = "Metronome will be added";
+        }
+        else
+        {
+            this.text.text = "Metronome will not be added";
+        }
+    }
+
     public void SetTime(AudioClip audioClip, int time)
     {
         audioSource.clip = audioClip;
         if (time >= 0 && time <= audioClip.length)
         {
             audioSource.timeSamples = time;
+        }
+    }
+
+    public void setTempo(InputField BPMInput)
+    {
+        if (BPMInput.text != "")
+        {
+            int tempBPM = int.Parse(BPMInput.text);
+            if (tempBPM > 0 && tempBPM <= 200)
+            {
+                this.metronomeBPM = tempBPM;
+                text.text = "You set BPM to: " + this.metronomeBPM;
+                Debug.Log(this.metronomeBPM);
+            }
+            else
+            {
+                text.text = "You can set BPM from 1 to 200";
+            }
+        }
+    }
+
+    public void setAccents(InputField AccentInput)
+    {
+        if (AccentInput.text != "")
+        {
+            int tempAccent = int.Parse(AccentInput.text);
+            if (tempAccent >= 0 && tempAccent <= 8)
+            {
+                this.metronomeAccents = tempAccent;
+                text.text = "You set Accents to: " + this.metronomeAccents;
+                Debug.Log(this.metronomeAccents);
+            }
+            else
+            {
+                text.text = "You can set Accents from 0 to 8";
+            }
         }
     }
 
@@ -413,7 +468,7 @@ public class LoadAudioFiles : MonoBehaviour
 
         Debug.Log(firstName);
         Debug.Log(secondName);
-        //tu sie wywala na indeksowaniu Index was out of range
+        
         int i = 0;
         foreach(AudioClip audioClip in audioClips) {
             Debug.Log(audioClip.name);
@@ -440,6 +495,10 @@ public class LoadAudioFiles : MonoBehaviour
                         i++;
                     }
                 }
+            }
+            else
+            {
+                text.text = "The second file to mix can't be same file like first";
             }
         }
     }

@@ -74,7 +74,7 @@ public class AudioClipCombine : MonoBehaviour
         return result;
     }
 
-    public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB, int channels, int frequency)
+    public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB, AudioClip clipC, int channels, int frequency, bool addMetronome, int bpm, int accent)
     {
         float[] floatSamplesA = new float[clipA.samples * clipA.channels];
         clipA.GetData(floatSamplesA, 0);
@@ -84,9 +84,48 @@ public class AudioClipCombine : MonoBehaviour
 
         float[] mixedFloatArray = MixAndClampFloatBuffers(floatSamplesA, floatSamplesB);
         
-        AudioClip result = AudioClip.Create("Mixed", mixedFloatArray.Length, channels, frequency, false);
-        result.SetData(mixedFloatArray, 0);
-        return result;
+        if (addMetronome)
+        {
+            float[] floatSamplesC = new float[clipC.samples * clipC.channels];
+            clipC.GetData(floatSamplesC, 0);
+
+            float[] floatSampleMetro = new float[mixedFloatArray.Length];// pusta tablica dla metronomu, dlugosc wyjsciowego audioclipu
+            
+            Debug.Log(bpm);
+            double tick = 60.0 / bpm;//dlugosc jednego ticku
+            Debug.Log("tick: " + tick);
+            double ticksAmount = mixedFloatArray.Length / (1/tick);//ilosc tickow mieszaca się w floatSampleMetro
+            Debug.Log("ticksAmount: " + ticksAmount);
+
+            int difference = (int)Math.Floor(tick);//tick jako int
+            
+            Debug.Log("difference: " + difference);
+
+            int j = 0;
+            for (int i = 0; i < floatSampleMetro.Length; i++) {
+                //DODAC ZEBY DALO SIE USTAWIC TEMPO
+                if (floatSamplesC.Length > j) { 
+                    floatSampleMetro[i] = floatSamplesC[j];
+                    j++;
+                }
+                else
+                {
+                    j = 0;
+                }
+            }
+            Debug.Log("Ticks Amount: " + ticksAmount + " j is: " + j);
+            float[] mixedFloatArrayWithMetronome = MixAndClampFloatBuffers(mixedFloatArray, floatSampleMetro); //polaczenie obu sampli z samplem metronomu
+
+            AudioClip result = AudioClip.Create("Mixed", mixedFloatArrayWithMetronome.Length, channels, frequency, false);
+            result.SetData(mixedFloatArrayWithMetronome, 0); 
+            return result;
+        }
+        else
+        { 
+            AudioClip result = AudioClip.Create("Mixed", mixedFloatArray.Length, channels, frequency, false);
+            result.SetData(mixedFloatArray, 0);
+            return result;
+        }
     }
 
     private float[] MixAndClampFloatBuffers(float[] bufferA, float[] bufferB)
