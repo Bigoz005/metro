@@ -18,6 +18,7 @@ public class LoadAudioFiles : MonoBehaviour
     public Dropdown dropdown1, dropdown2, dropdown3;
     public AudioClipCombine audioClipCombine;
     public AudioClip metroClip;
+    public AudioClip accentClip;
 
     private List<AudioClip> audioClips;
     private List<AudioClip> selectedAudioClips;
@@ -193,7 +194,7 @@ public class LoadAudioFiles : MonoBehaviour
             if (selectedAudioClips.Count > 1)
             {
                 Debug.Log("SelectedAudioClips: " + selectedAudioClips.Capacity);
-                AudioClip result = audioClipCombine.MixAudioFiles(selectedAudioClips[0], selectedAudioClips[1], this.metroClip, this.channels, this.frequency, this.addMetronome, this.metronomeBPM, this.metronomeAccents);
+                AudioClip result = audioClipCombine.MixAudioFiles(selectedAudioClips[0], selectedAudioClips[1], this.metroClip, this.accentClip, this.channels, this.frequency, this.addMetronome, this.metronomeBPM, this.metronomeAccents);
                 Debug.Log("Created result");
                 SavWav.Save(fileName, result);
                 text.text = "File is saved as: " + fileName + ".wav";
