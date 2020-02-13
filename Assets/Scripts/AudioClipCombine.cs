@@ -86,14 +86,18 @@ public class AudioClipCombine : MonoBehaviour
         
         if (clipA.length > clipB.length){
             timeOfResult = clipA.length;
+            
         }
         else
         {
-            timeOfResult = clipB.length; // 
+            timeOfResult = clipB.length;
+
         }
 
         float[] mixedFloatArray = MixAndClampFloatBuffers(floatSamplesA, floatSamplesB);
-        
+
+        AudioClip resultClip = AudioClip.Create("Temp", mixedFloatArray.Length, channels, frequency, false); ;
+
         if (addMetronome)
         {
             float[] floatSamplesC = new float[clipC.samples * clipC.channels];
@@ -116,21 +120,23 @@ public class AudioClipCombine : MonoBehaviour
 
             int j = 0;
             int addedTicksAmount = 0;
-            for (int i = 0; i < floatSampleMetro.Length; i++) {
-                //DODAC ZEBY DALO SIE USTAWIC TEMPO
-                if(addedTicksAmount < ticksAmount) { 
-                    if (floatSamplesC.Length > j) { 
-                        floatSampleMetro[i] = floatSamplesC[j];
-                        j++;
-                    }
-                    else
+
+            int samplesInTime = clipC.frequency / (int)(1/tick);
+            
+            //DODAC ZEBY DALO SIE USTAWIC TEMPO
+            for (int g = 0; g < floatSampleMetro.Length; g++)
+            {
+                if (g % samplesInTime == 0)
+                {
+                    if (addedTicksAmount < ticksAmount)
                     {
+                        resultClip.SetData(floatSamplesC, (int)(0 + addedTicksAmount * samplesInTime));
                         addedTicksAmount++;
-                        j = 0;
                     }
                 }
             }
-
+            resultClip.GetData(floatSampleMetro, 0);
+          
             Debug.Log("Ticks Amount: " + ticksAmount + " Added amount: " + addedTicksAmount);
             float[] mixedFloatArrayWithMetronome = MixAndClampFloatBuffers(mixedFloatArray, floatSampleMetro); //polaczenie obu sampli z samplem metronomu
 
