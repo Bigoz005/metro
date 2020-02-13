@@ -47,7 +47,7 @@ public class AudioClipCombine : MonoBehaviour
     {
         if (clipA == null || clipB == null)
             return null;
-
+ 
         int length = 0;
         length += clipA.samples * clipA.channels;
         length += clipB.samples * clipB.channels;
@@ -74,7 +74,7 @@ public class AudioClipCombine : MonoBehaviour
         return result;
     }
 
-    public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB, AudioClip clipC, int channels, int frequency, bool addMetronome, int bpm, int accent)
+    public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB, AudioClip clipC, AudioClip clipD, int channels, int frequency, bool addMetronome, int bpm, int accent)
     {
         float[] floatSamplesA = new float[clipA.samples * clipA.channels];
         clipA.GetData(floatSamplesA, 0);
@@ -102,6 +102,9 @@ public class AudioClipCombine : MonoBehaviour
         {
             float[] floatSamplesC = new float[clipC.samples * clipC.channels];
             clipC.GetData(floatSamplesC, 0);
+            
+            float[] floatSamplesD = new float[clipD.samples * clipD.channels];
+            clipD.GetData(floatSamplesD, 0);
 
             float[] floatSampleMetro = new float[mixedFloatArray.Length];// pusta tablica dla metronomu, dlugosc wyjsciowego audioclipu
 
@@ -120,18 +123,27 @@ public class AudioClipCombine : MonoBehaviour
 
             int j = 0;
             int addedTicksAmount = 0;
-
+            int innerTicks = 1;
             int samplesInTime = clipC.frequency / (int)(1/tick);
             
-            //DODAC ZEBY DALO SIE USTAWIC TEMPO
             for (int g = 0; g < floatSampleMetro.Length; g++)
             {
                 if (g % samplesInTime == 0)
                 {
                     if (addedTicksAmount < ticksAmount)
                     {
-                        resultClip.SetData(floatSamplesC, (int)(0 + addedTicksAmount * samplesInTime));
-                        addedTicksAmount++;
+                        if(innerTicks == 1){
+                            resultClip.SetData(floatSamplesD, (int)(0 + addedTicksAmount * samplesInTime));
+                            innerTicks++;
+                            addedTicksAmount++;
+                        }else{
+                            resultClip.SetData(floatSamplesC, (int)(0 + addedTicksAmount * samplesInTime));
+                            innerTicks++;
+                            addedTicksAmount++;
+                        }
+                        if(innerTicks > accent){
+                            innerTicks = 1;
+                        }
                     }
                 }
             }

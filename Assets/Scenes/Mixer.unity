@@ -244,6 +244,7 @@ MonoBehaviour:
   dropdown3: {fileID: 1897815866}
   audioClipCombine: {fileID: 348808508}
   metroClip: {fileID: 8300000, guid: c9ca7affaeabbb249aac4c1067886ae0, type: 3}
+  accentClip: {fileID: 8300000, guid: a06f2e10185e14a4bafde4b00a5a5ca1, type: 3}
 --- !u!167 &8545697
 AudioReverbZone:
   m_ObjectHideFlags: 0
