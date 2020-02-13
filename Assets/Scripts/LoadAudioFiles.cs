@@ -165,7 +165,7 @@ public class LoadAudioFiles : MonoBehaviour
             if (selectedAudioClips.Count > 1)
             {
                 Debug.Log("SelectedAudioClips: " + selectedAudioClips.Capacity);
-                AudioClip result = audioClipCombine.Combine(selectedAudioClips[0], selectedAudioClips[1], this.channels, this.frequency);
+                AudioClip result = audioClipCombine.Combine(selectedAudioClips[0], selectedAudioClips[1], this.metroClip, this.accentClip, this.channels, this.frequency, this.addMetronome, this.metronomeBPM, this.metronomeAccents);
                 SavWav.Save(fileName, result);
                 text.text = "File is saved as:" + fileName + ".wav";
                 selectedAudioClips.Clear();
@@ -271,13 +271,14 @@ public class LoadAudioFiles : MonoBehaviour
     public void addMetronomeButton()
     {
         this.addMetronome = !this.addMetronome;
-        Debug.Log(this.addMetronome);
         if (addMetronome)
         {
+            Debug.Log(this.addMetronome);
             this.text.text = "Metronome will be added";
         }
         else
         {
+            Debug.Log(this.addMetronome);
             this.text.text = "Metronome will not be added";
         }
     }

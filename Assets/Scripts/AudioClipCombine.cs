@@ -36,6 +36,8 @@ public class AudioClipCombine : MonoBehaviour
         if (length == 0)
             return null;
 
+
+
         AudioClip result = AudioClip.Create("Combined", length, 2, 44100, false, false);
         result.SetData(data, 0);
 
@@ -43,7 +45,7 @@ public class AudioClipCombine : MonoBehaviour
     }
 
 
-    public AudioClip Combine(AudioClip clipA, AudioClip clipB, int channels, int frequency)
+    public AudioClip Combine(AudioClip clipA, AudioClip clipB, AudioClip clipC, AudioClip clipD, int channels, int frequency, bool addMetronome, int bpm, int accent)
     {
         if (clipA == null || clipB == null)
             return null;
@@ -65,13 +67,80 @@ public class AudioClipCombine : MonoBehaviour
         buffer2.CopyTo(data, length);
         length += buffer2.Length;
 
+        double timeOfResult = clipB.length + clipA.length;
+
         if (length == 0)
             return null;
 
-        AudioClip result = AudioClip.Create("Combined", length, channels, frequency, false, false);
-        result.SetData(data, 0);
+        if (addMetronome)
+        {
+            float[] floatSamplesC = new float[clipC.samples * clipC.channels];
+            clipC.GetData(floatSamplesC, 0);
 
-        return result;
+            float[] floatSamplesD = new float[clipD.samples * clipD.channels];
+            clipD.GetData(floatSamplesD, 0);
+
+            float[] floatSampleMetro = new float[length];// pusta tablica dla metronomu, dlugosc wyjsciowego audioclipu
+
+            Debug.Log("bpm: " + bpm);
+            double tick = 60.0 / bpm;// ile sekund trwa 1 tick
+            Debug.Log("tick: " + tick);
+
+            double ticksAmount;
+            ticksAmount = (int)(timeOfResult / tick);// ilosc tickow mieszaca się w utworze
+
+            Debug.Log("ticksAmount: " + ticksAmount);
+
+            
+            //Debug.Log("difference: " + difference);
+
+            int j = 0;
+            int addedTicksAmount = 0;
+            int innerTicks = 1;
+            int samplesInTime = clipC.frequency / (int)(1 / tick);
+
+            AudioClip resultClip = AudioClip.Create("Temp", length, channels, frequency, false); 
+
+            for (int g = 0; g < floatSampleMetro.Length; g++)
+            {
+                if (g % samplesInTime == 0)
+                {
+                    if (addedTicksAmount < ticksAmount)
+                    {
+                        if (innerTicks == 1)
+                        {
+                            resultClip.SetData(floatSamplesD, (int)(0 + addedTicksAmount * samplesInTime));
+                            innerTicks++;
+                            addedTicksAmount++;
+                        }
+                        else
+                        {
+                            resultClip.SetData(floatSamplesC, (int)(0 + addedTicksAmount * samplesInTime));
+                            innerTicks++;
+                            addedTicksAmount++;
+                        }
+                        if (innerTicks > accent)
+                        {
+                            innerTicks = 1;
+                        }
+                    }
+                }
+            }
+            resultClip.GetData(floatSampleMetro, 0);
+
+            Debug.Log("Ticks Amount: " + ticksAmount + " Added amount: " + addedTicksAmount);
+            float[] mixedFloatArrayWithMetronome = MixAndClampFloatBuffers(data, floatSampleMetro); //polaczenie obu sampli z samplem metronomu
+
+            AudioClip result = AudioClip.Create("Mixed", mixedFloatArrayWithMetronome.Length, channels, frequency, false);
+            result.SetData(mixedFloatArrayWithMetronome, 0);
+            return result;
+        }
+        else
+        {
+            AudioClip result = AudioClip.Create("Combined", length, channels, frequency, false, false);
+            result.SetData(data, 0);
+            return result;
+        }
     }
 
     public AudioClip MixAudioFiles(AudioClip clipA, AudioClip clipB, AudioClip clipC, AudioClip clipD, int channels, int frequency, bool addMetronome, int bpm, int accent)
