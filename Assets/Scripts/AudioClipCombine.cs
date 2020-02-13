@@ -104,7 +104,7 @@ public class AudioClipCombine : MonoBehaviour
             clipC.GetData(floatSamplesC, 0);
             
             float[] floatSamplesD = new float[clipD.samples * clipD.channels];
-            clipD.GetData(floatSamplesD 0);
+            clipD.GetData(floatSamplesD, 0);
 
             float[] floatSampleMetro = new float[mixedFloatArray.Length];// pusta tablica dla metronomu, dlugosc wyjsciowego audioclipu
 
@@ -141,7 +141,7 @@ public class AudioClipCombine : MonoBehaviour
                             innerTicks++;
                             addedTicksAmount++;
                         }
-                        if(innerTicks == accent){
+                        if(innerTicks > accent){
                             innerTicks = 1;
                         }
                     }
